@@ -13,7 +13,7 @@ impl Game {
     pub fn new() -> Self {
         Game {
             board: Board::new(),
-            computer: Minmax,
+            computer: Minmax::new(),
         }
     }
 

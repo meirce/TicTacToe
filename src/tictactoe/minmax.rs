@@ -9,14 +9,29 @@ struct MoveValue {
     value: i8,
 }
 
-pub struct Minmax;
+pub struct Minmax {
+    memory: HashMap<Board, MoveValue>
+}
 
 impl Minmax {
-    pub fn get_next_move(&self, board: &Board, player_value: &i8) -> Result<usize, Error> {
+    pub fn new() -> Self {
+        Minmax {memory: HashMap::new()}
+    }
+
+    pub fn get_next_move(&mut self, board: &Board, player_value: &i8) -> Result<usize, Error> {
         Ok(self.minmax(&board, *player_value)?.cell)
     }
 
-    fn minmax(&self, board: &Board, turn: i8) -> Result<MoveValue, Error> {
+    fn minmax(&mut self, board: &Board, turn: i8) -> Result<MoveValue, Error> {
+        if self.memory.contains_key(board) {
+            match self.memory.get(board) {
+                Some(x) => {
+                    return Ok(*x);
+                },
+                _ => {}
+            }
+        }
+
         let free_moves: Vec<usize> = board
             .data
             .iter()
@@ -46,12 +61,14 @@ impl Minmax {
                 },
             );
         }
+        let best_move = *next_boards
+        .iter()
+        .max_by_key(|(_, j)| turn * j.value)
+        .ok_or_else(|| err_msg("Could not find min/max valued move."))?.1;
 
-        Ok(*next_boards
-            .iter()
-            .max_by_key(|(_, j)| turn * j.value)
-            .ok_or_else(|| err_msg("Could not find min/max valued move."))?
-            .1)
+        self.memory.insert((*board).clone(), best_move);
+
+        Ok(best_move)
     }
 
     fn eval_board(board: &Board, depth: i8) -> i8 {

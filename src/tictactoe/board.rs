@@ -1,7 +1,7 @@
 use failure::{err_msg, Error};
 use std::fmt::{Display, Formatter};
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq, Hash)]
 pub struct Board {
     pub data: [i8; 9],
     ways_to_win: [[usize; 3]; 8],
